@@ -2,10 +2,7 @@
 
 Amble is an omnitool for your data, collecting information into a unified
 format, and providing powerful interfaces to program, view and manipulate
-that information.
-
-Amble is designed to function as a database, a note taking system, 
-and a spreadsheet. A squishy, extendable, and programmable hub for your data.
+that information. A squishy, extendable, and programmable hub for your data.
 
 Amble is designed to work well for individuals and small businesses that want a 
 central way to manage fragmented data. One that provides convenience without
