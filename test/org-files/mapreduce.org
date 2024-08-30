@@ -1,0 +1,125 @@
+* Test Category
+:PROPERTIES:
+:ID:       d775182b-aa2a-48f3-8bfa-14f7616b104e
+:END:
+#+title: MapReduce
+
+[[file:pdfs/mapreduce.pdf]]
+
+* Big Picture
+
+In the early days of Google, they were indexing a good portion of the internet. Which, even in the early 2000s, amounted to
+terabytes upon terabytes of data.
+
+They needed to take that data, and apply some processing to it so they could establish how the web is connected, and so they could
+process the page rank.
+
+They needed a framework that could allow their engineers to design processes that could efficiently scale to hundreds (thousands) of
+computers without the programmer needing to be a distributed systems expert.
+
+The two main interfaces they wanted to accomplish this with were the =map= function and the =reduce= function.
+
+* High level view of the solution
+
+It assumes that there is some input, and that input is split up into a bunch of files or chunks in some way.
+
+Let's say that it has three inputs =i1=, =i2=, =i3=
+- These inputs might each individually be html scraped from the web, or a file might contain many html documents.
+
+*Running the =Map= step*
+
+Map reduce will then run the =map= function defined by the programmer on each of the input files
+- (note that there's some parallelism that can be achieved)
+
+=map= should produce a list of key/value pairs
+
+Let's take for example a =map= function that takes a file and adds an element ={word, 1}= to the list for every word that it finds
+- In effect, we are creating a list which contains all words in the file, where each element of the list is a key value pair with
+  the word as the key and the value =1=. (This is gonna be useful soon when we call reduce on this list)
+
+| =i1= | ={a, 1}= | ={b, 1}= |          |
+| =i2= |          | ={b, 1}= |          |
+| =i3= | ={a, 1}= |          | ={c, 1}= |
+
+*Running the =Reduce= Step*
+
+After the map has been generated for each file, it's going to collect all the same keys across all the files.
+- So, first it will collect all the dicts with the =a= across =i1=, =i2=, and =i3= and run the reduce function on them
+  - For =a= the reduce will produce ={a,2}=
+- It then does the same for =b= and =c=
+
+* Important terminology
+
+*Job* => The entire process of running MapReduce
+
+*Task* => The individual action taken in the job.
+
+MapReduce involves one job, that contains many map tasks and many subsequent reduce tasks.
+
+* The main functions
+
+** =Map(k, v)=
+- The key (=k=) typically refers to the name of the input file that is passed in,
+  and =v= typically refers to the content of the input file
+
+- Within the implementation of =Map= the programmer can call =emit(k, v)= which will
+  emit a key value pair to the framework.
+
+** =Reduce(k,v)=
+- The key =k= is the key that this reduce function is operating on
+- The value =v= is a vector of all the values associated with that key
+
+- The programmer can also call =emit(v)= within reduce to submit the output of this reduce
+  to the framework
+
+* Architecture
+
+At the time of writing the paper, Google had tens of thousands of computers as part of their server
+infrastructure. These computers were, by today's standards, pretty low powered linux machines,
+with about 2-4gb of RAM each.
+
+An engineer would import a C++ library into their environment called =mapreduce= which provided an
+interface for that engineer to write their =Map= and =Reduce= methods. Google's mapreduce library,
+in 2004, required the engineer to write two classes, one that implements the =Mapper= interface,
+and another that implements the =Reducer= interface.
+
+The engineer then registers these classes with the library, and configures mapreduce with the files
+that they want to process, the destination that the output files should go to, the number of reducer
+workers that they want to use, as well as the maximum number of machines that they want dedicated
+to their job.
+
+Once they have everything ready, they call the =MapReduce= function.
+
+* The Job
+
+When the engineer calls the MapReduce function, a master server is spun up to control and administer the job.
+
+1. The master first generates =M= splits over the input space.
+   - These splits usually are around 16-64mb each. In the [[id:30a19bea-2a70-4621-aeb7-e0dfca83a07a][Google File System]] files
+     were already split up in this way, one file would be chopped up and replicated
+     many times across the server infrastructure, so this approach made sense.
+2. The master then chooses servers in the network to act as the mappers, based on the
+   splits that it generated. It wants to find servers which aren't too busy, but also
+   have a copy of the splits that it wants them to process.
+3. Once the mappers are chosen, the master replicates the mapping code from the user
+   across them and gives them the command to start processing.
+4. The mappers generate the key,value pairs for their split(s) and writes them out into
+   files on their disk.
+5. Optionally, the mapper can be configured to call a combiner function, which is equivalent
+   to running the reduce code against its generated output before the reducer picks up the
+   mapper's generated file.
+6. Once the mapper finishes, it notifies the master and provides information on where a reducer
+   can find its generated file(s).
+7. The master then spins up =R= (specified by the user) reducer workers to process the map files.
+   Each reducer worker is assigned a set of files to process.
+8. The reducer begins by sorting all the key value pairs in the file. Then, for each unique key,
+   it runs the =Reduce= function against all of its values.
+9. The reducer worker then writes its output into a file and notifies the master that it is done.
+10. Once all the reducer workers are done. The master returns the list of files (alongside some other
+    useful metadata) back to the user's program.
+11. The information spread across these files then needs to be combined somehow. The user can run those
+    files through map-reduce again, reducing the number of reducer workers (=R=) to narrow down the
+    output. Or, they could use another distributed program for combining file contents.
+
+*NB* There's some other super interesting information about how they handle fault tolerance in the paper
+that's worth referring back to.
