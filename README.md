@@ -1,12 +1,13 @@
 # What is Amble?
 
-Amble is an information management system, allowing you to integrate 
-information from various different sources into a single format, 
-providing powerful programming tools for viewing and manipulating that information.
+Amble is an information management system, providing a unified
+format for your information, alongside powerful tools to program, view and manipulate
+that information.
 
 Amble is designed to work well for individuals and small businesses that want a 
 central way to manage all of their information. One that provides convenience without
-sacrificing their control, or their privacy.
+sacrificing their control, or their privacy. That lends itself to power users 
+and non-technical users.
 
 ## Problems that Amble is trying to solve:
 
