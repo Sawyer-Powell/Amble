@@ -4,13 +4,13 @@ mod parsing;
 
 use std::fs;
 
-use air::CategoryBlock;
-use db::AmbleDB;
-use parsing::Parser;
+pub use air::CategoryBlock;
+pub use db::AmbleDB;
+pub use parsing::Parser;
 
 fn main() {
     let document =
-        fs::read_to_string("../test/org-files/mapreduce.org").expect("Should be able to open file");
+        fs::read_to_string("test/org/lots_of_categories.org").expect("Should be able to open file");
 
     let blocks = Parser::new(&document).parse();
 

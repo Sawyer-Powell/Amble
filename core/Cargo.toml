@@ -3,6 +3,13 @@ name = "amble"
 version = "0.1.0"
 edition = "2021"
 
+[dev-dependencies]
+criterion = { version = "0.5" }
+
+[[bench]]
+name = "end_to_end"
+harness = false
+
 [dependencies]
 rusqlite = { version = "0.32.0", features = ["bundled"] }
 anyhow = "1.0"
@@ -15,3 +22,6 @@ crate-type = ["cdylib", "rlib"]
 debug = true
 debuginfo-level = 1
 jemalloc = false
+
+[profile.release]
+debug = true

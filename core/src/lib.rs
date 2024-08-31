@@ -1,4 +1,11 @@
 use std::ffi::{c_char, CStr, CString};
+mod air;
+mod db;
+mod parsing;
+
+pub use air::*;
+pub use db::AmbleDB;
+pub use parsing::Parser;
 
 use anyhow::{anyhow, Context};
 
@@ -47,6 +54,23 @@ pub extern "C" fn write_category(category: *const TopLevelCategory) -> *mut c_ch
             .to_rust()
             .expect("Could not convert category pointer to rust category")
     };
+
+    let blocks = Parser::new(&rust_category.content).parse();
+
+    let mut db = AmbleDB::new("amble.sqlite").expect("Could not create db");
+
+    let category = CategoryBlock {
+        id: Some(1),
+        name: rust_category.name,
+        children: blocks,
+        level: 0,
+    };
+
+    db.write_top_level_category(&category)
+        .expect("Should be able to save category to database");
+
+    db.get_top_level_category(1)
+        .expect("Should be able to get category from database");
 
     CString::new(rust_category.content).unwrap().into_raw()
 }
