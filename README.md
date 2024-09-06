@@ -19,7 +19,8 @@ and non-technical users.
    support for user defined lisp functions that can be uesd during
    fold evaluation
 4. Python and Javascript/Typescript syntax for constructing folds, 
-   alongside general Python bindings for working with Amble data.
+   alongside bindings for working with Amble data like a more traditional
+   database/document store.
 5. A JSON parser and renderer for AIR
 6. A web library for developing UIs on top of Amble data
 
@@ -114,11 +115,3 @@ and use the `[]` syntax for capturing data into groups
     Overdue!
   * Should sit down with Katie to scope out the upcoming management screen - due: August 25th, 2024
     Still Upcoming
-```
-
-### Not just for notes
-
-Amble has a goal of being able to manage and organize large amounts of data. Performantly calculating folds,
-and searches in milliseconds. Down the road, we hope to provide tools for developers to easily have their
-amble system integrate data from many different sources, not just from their handwritten notes. Amble should
-work with any data that can be serialized into a tree of nodes with properties.
