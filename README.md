@@ -4,10 +4,13 @@ Amble is an omnitool for your data, collecting information into a unified
 format, and providing powerful interfaces to program, view and manipulate
 that information.
 
-Amble is designed to work well for individuals and small businesses that want a 
-central way to manage fragmented data. One that provides convenience without
-sacrificing their control, or their privacy. That lends itself to power users 
-and non-technical users.
+Amble is being developed first as a Neovim plugin, as a format for
+taking notes, and aggregating personal data. This will help formulate the core
+of Amble, which is being developed as a shared library.
+
+Development will then move onto fleshing Amble out as an alternative document
+store, providing facilities for users to build web applications on top of
+their Amble data.
 
 # Roadmap
 
