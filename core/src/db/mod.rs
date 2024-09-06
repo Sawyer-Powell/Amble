@@ -1,6 +1,6 @@
 mod amble_db;
-mod extraction;
 mod schema;
+mod extraction;
 
 pub use amble_db::*;
 pub use extraction::*;

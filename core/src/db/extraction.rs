@@ -66,7 +66,7 @@ impl DbBlockMatrix {
         Ok(block_matrix)
     }
 
-    fn produce_flat_db_block_vec(
+    pub fn produce_flat_db_block_vec(
         &self,
         connection: &Connection,
     ) -> Result<Vec<DbBlock>, anyhow::Error> {
@@ -117,9 +117,9 @@ impl DbBlockMatrix {
         Ok(db_blocks)
     }
 
-    fn get_child_blocks(
-        &self,
-        db_blocks: &Vec<DbBlock>,
+    fn get_child_blocks<'a>(
+        &'a self,
+        db_blocks: &'a Vec<DbBlock>,
         parent_block: &DbBlock,
         start_index: usize,
     ) -> Result<(Vec<Block>, usize), anyhow::Error> {
@@ -222,16 +222,10 @@ impl DbBlockMatrix {
         Ok((children, index))
     }
 
-    pub fn get_category_block(
-        &self,
-        connection: &Connection,
+    pub fn get_category_block<'a>(
+        &'a self,
+        db_blocks: &'a Vec<DbBlock>
     ) -> Result<CategoryBlock, anyhow::Error> {
-        let db_blocks = self
-            .produce_flat_db_block_vec(connection)
-            .context("Could not produce flat db block vec")?;
-
-        // Because of the ordering rules of the matrix, the category block in question should
-        // always be the first item
         let db_block = &db_blocks[0];
 
         if let DbBlock::Category(db_cat_block) = db_block {
@@ -266,13 +260,15 @@ mod tests {
         let document = fs::read_to_string("../test/org-files/mapreduce.org")
             .context("Should be able to open file")?;
 
-        let blocks = Parser::new(&document).parse();
+        let parser = Parser::new(&document);
+        let blocks = parser.parse();
+
 
         let mut db = AmbleDB::new("amble-test.sqlite").context("Could not create db")?;
 
         let test_category = CategoryBlock {
             id: Some(1),
-            name: "Test Category".to_string(),
+            name: "Test Category",
             level: 0,
             children: blocks,
         };
@@ -328,7 +324,7 @@ mod tests {
                     last_tb_id = tb_id;
                 } else {
                     panic!(
-                        "Rich text blocks are not ordered, {} is not greater than {}",
+                        "Text blocks are not ordered, {} is not greater than {}",
                         tb_id, last_tb_id
                     );
                 }

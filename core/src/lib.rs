@@ -5,6 +5,7 @@ mod parsing;
 
 pub use air::*;
 pub use db::AmbleDB;
+use db::DbBlockMatrix;
 pub use parsing::Parser;
 
 use anyhow::{anyhow, Context};
@@ -55,13 +56,14 @@ pub extern "C" fn write_category(category: *const TopLevelCategory) -> *mut c_ch
             .expect("Could not convert category pointer to rust category")
     };
 
-    let blocks = Parser::new(&rust_category.content).parse();
+    let parser = Parser::new(&rust_category.content);
+    let blocks = parser.parse();
 
     let mut db = AmbleDB::new("amble.sqlite").expect("Could not create db");
 
     let category = CategoryBlock {
         id: Some(1),
-        name: rust_category.name,
+        name: &rust_category.name,
         children: blocks,
         level: 0,
     };
@@ -69,8 +71,15 @@ pub extern "C" fn write_category(category: *const TopLevelCategory) -> *mut c_ch
     db.write_top_level_category(&category)
         .expect("Should be able to save category to database");
 
-    db.get_top_level_category(1)
-        .expect("Should be able to get category from database");
+    let matrix = DbBlockMatrix::new(&db.connection, 1).expect("Could not create db block matrix");
+
+    let flat_blocks = matrix
+        .produce_flat_db_block_vec(&db.connection)
+        .expect("Could not produce flat vec of db blocks");
+
+    let category_block = matrix
+        .get_category_block(&flat_blocks)
+        .expect("Could not get category block");
 
     CString::new(rust_category.content).unwrap().into_raw()
 }

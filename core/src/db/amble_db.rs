@@ -52,14 +52,4 @@ impl AmbleDB {
 
         Ok(())
     }
-
-    pub fn get_top_level_category(&mut self, id: i64) -> Result<CategoryBlock, anyhow::Error> {
-        let matrix =
-            DbBlockMatrix::new(&self.connection, id).context("Could not create db block matrix")?;
-        let category_block = matrix
-            .get_category_block(&self.connection)
-            .context("Could not get category block")?;
-
-        Ok(category_block)
-    }
 }

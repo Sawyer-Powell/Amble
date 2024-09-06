@@ -21,24 +21,27 @@ pub enum TokenType {
 #[derive(Debug)]
 pub struct Token {
     pub tok_type: TokenType,
-    pub lexeme: String,
+    pub lexeme_start: usize,
+    pub lexeme_end: usize
 }
 
 pub struct Tokenizer {
     chars: Vec<char>,
+    num_chars: usize,
     char_index: usize,
 }
 
-impl<'a> Tokenizer {
-    pub fn new(document: &'a str) -> Tokenizer {
+impl Tokenizer {
+    pub fn new(document: &str) -> Tokenizer {
         Tokenizer {
             chars: document.chars().collect(),
+            num_chars: document.chars().count(),
             char_index: 0,
         }
     }
 
     fn peek_next_char(&mut self, index: usize) -> Option<char> {
-        if index >= self.chars.len() {
+        if index >= self.num_chars {
             None
         } else {
             Some(self.chars[index])
@@ -67,7 +70,7 @@ impl<'a> Tokenizer {
             Some(char) if char.is_numeric() && self.peek_next_char(index + 1) == Some('.') => {
                 (TokenType::NumberPeriod, index + 2)
             }
-            None => (TokenType::EOF, self.chars.len()),
+            None => (TokenType::EOF, self.num_chars),
             _ => {
                 let (tok_type, i) = self.peek_next_token(index + 1);
                 match tok_type {
@@ -77,23 +80,24 @@ impl<'a> Tokenizer {
             }
         }
     }
-}
 
-impl Iterator for Tokenizer {
-    type Item = Token;
+    pub fn get_tokens(&mut self) -> Vec<Token> {
+        let mut tokens: Vec<Token> = Vec::new();
 
-    fn next(&mut self) -> Option<Self::Item> {
-        let (tok_type, index) = self.peek_next_token(self.char_index);
-        let token = Token {
-            tok_type,
-            lexeme: self.chars[self.char_index..index]
-                .iter()
-                .collect::<String>(),
-        };
-        self.char_index = index;
-        match token.tok_type {
-            TokenType::EOF => None,
-            _ => Some(token),
+        loop {
+            let (tok_type, index) = self.peek_next_token(self.char_index);
+            let token = Token {
+                tok_type,
+                lexeme_start: self.char_index,
+                lexeme_end: index,
+            };
+            self.char_index = index;
+            match token.tok_type {
+                TokenType::EOF => break,
+                _ => tokens.push(token)
+            }
         }
+
+        tokens
     }
 }

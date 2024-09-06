@@ -1,29 +1,13 @@
-use amble::{AmbleDB, CategoryBlock, Parser};
+use amble::Parser;
 use criterion::{criterion_group, criterion_main, Criterion};
-use std::{fs, hint::black_box, path::PathBuf};
+use std::{fs, hint::black_box};
 
-fn file_load_then_return(file_path: &PathBuf) {
-    let file = fs::read_to_string(file_path).expect("Should be able to read file");
-
-    let blocks = Parser::new(&file).parse();
-
-    let mut db = AmbleDB::new("amble.sqlite").expect("Could not create db");
-
-    let category = CategoryBlock {
-        id: Some(1),
-        name: "MapReduce".to_string(),
-        children: blocks,
-        level: 0,
-    };
-
-    db.write_top_level_category(&category)
-        .expect("Should be able to save category to database");
-
-    db.get_top_level_category(1)
-        .expect("Should be able to get category from database");
+fn parse_file(file: &str) {
+    let parser = Parser::new(&file);
+    parser.parse();
 }
 
-fn end_to_end(c: &mut Criterion) {
+fn parsing(c: &mut Criterion) {
     for entry in fs::read_dir("test/org").expect("There should be a test/org folder") {
         let entry = entry.expect("There should exist at least one entry in the test/org folder");
         let path = entry.path();
@@ -38,11 +22,13 @@ fn end_to_end(c: &mut Criterion) {
             }
         }
 
-        c.bench_function(test_name, |b| {
-            b.iter(|| file_load_then_return(black_box(&path)))
+        let file = fs::read_to_string(&path).expect("Should be able to read file");
+
+        c.bench_function(&format!("{} - parsing", test_name), |b| {
+            b.iter(|| parse_file(black_box(&file)))
         });
     }
 }
 
-criterion_group!(benches, end_to_end);
+criterion_group!(benches, parsing);
 criterion_main!(benches);

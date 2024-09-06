@@ -10,46 +10,46 @@ use super::db_io::{DbCategoryBlock, DbIO, DbRichTextBlock, DbTextBlock};
 */
 
 #[derive(Debug)]
-pub enum Block {
-    Category(CategoryBlock),
-    RichText(RichTextBlock),
-    Text(TextBlock),
+pub enum Block<'a> {
+    Category(CategoryBlock<'a>),
+    RichText(RichTextBlock<'a>),
+    Text(TextBlock<'a>),
 }
 
 // -----------------------------------------------------------
 
 #[derive(Debug)]
-pub struct CategoryBlock {
+pub struct CategoryBlock<'a> {
     pub id: Option<i64>,
-    pub name: String,
+    pub name: &'a str,
     pub level: usize,
-    pub children: Vec<Block>,
+    pub children: Vec<Block<'a>>,
 }
 
-impl Clone for CategoryBlock {
+impl<'a> Clone for CategoryBlock<'a> {
     fn clone(&self) -> Self {
         CategoryBlock {
             id: self.id,
-            name: self.name.clone(),
+            name: self.name,
             level: self.level,
             children: Vec::new(),
         }
     }
 }
 
-impl CategoryBlock {
+impl<'a> CategoryBlock<'a> {
     fn as_db_type(&self, parent_category_id: Option<i64>) -> DbCategoryBlock {
         DbCategoryBlock {
             id: self.id,
-            name: self.name.clone(),
+            name: self.name.to_string(),
             parent_category_id,
         }
     }
 
-    pub fn from_db_type(db_block: &DbCategoryBlock) -> Self {
+    pub fn from_db_type(db_block: &'a DbCategoryBlock) -> Self {
         CategoryBlock {
-            id: db_block.id,
-            name: db_block.name.clone(),
+            id: db_block.id.clone(),
+            name: &db_block.name,
             // TODO: Probably need to rethink how levels work in the system, since it's not
             // generally useful in all circumstances
             level: 0,
@@ -88,11 +88,11 @@ impl CategoryBlock {
 // -----------------------------------------------------------
 
 #[derive(Debug)]
-pub struct RichTextBlock {
-    pub children: Vec<Block>,
+pub struct RichTextBlock<'a> {
+    pub children: Vec<Block<'a>>,
 }
 
-impl Clone for RichTextBlock {
+impl<'a> Clone for RichTextBlock<'a> {
     fn clone(&self) -> Self {
         RichTextBlock {
             children: Vec::new(),
@@ -100,7 +100,7 @@ impl Clone for RichTextBlock {
     }
 }
 
-impl RichTextBlock {
+impl<'a> RichTextBlock<'a> {
     fn as_db_type(&self, id: Option<i64>, parent_category_id: Option<i64>) -> DbRichTextBlock {
         DbRichTextBlock {
             id,
@@ -150,19 +150,19 @@ impl RichTextBlock {
 // -----------------------------------------------------------
 
 #[derive(Debug)]
-pub struct TextBlock {
-    pub content: String,
+pub struct TextBlock<'a> {
+    pub content: &'a str ,
 }
 
-impl Clone for TextBlock {
+impl<'a> Clone for TextBlock<'a> {
     fn clone(&self) -> Self {
         TextBlock {
-            content: self.content.clone(),
+            content: self.content,
         }
     }
 }
 
-impl TextBlock {
+impl<'a> TextBlock<'a> {
     fn as_db_type(
         &self,
         id: Option<i64>,
@@ -171,15 +171,15 @@ impl TextBlock {
     ) -> DbTextBlock {
         DbTextBlock {
             id,
-            content: self.content.clone(),
+            content: self.content.to_string(),
             parent_category_id,
             parent_rich_text_block_id,
         }
     }
 
-    pub fn from_db_type(db_block: &DbTextBlock) -> Self {
+    pub fn from_db_type(db_block: &'a DbTextBlock) -> Self {
         TextBlock {
-            content: db_block.content.clone(),
+            content: &db_block.content,
         }
     }
 

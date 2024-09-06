@@ -1,26 +1,27 @@
 use super::lexer::{Token, TokenType, Tokenizer};
 use crate::air::{Block, CategoryBlock, RichTextBlock, TextBlock};
 
-pub struct Parser {
+pub struct Parser<'a> {
     tokens: Vec<Token>,
+    document: &'a str,
 }
 
-impl Parser {
+impl<'a> Parser<'a> {
     pub fn new(document: &str) -> Parser {
-        Parser {
-            tokens: Tokenizer::new(document).collect(),
-        }
+        let tokens = Tokenizer::new(document).get_tokens();
+        Parser { tokens, document }
     }
 
-    fn parse_category_block(&mut self, token_index: usize) -> Option<(CategoryBlock, usize)> {
+    // Determines if the next block is a category, if it is, return the category level
+    fn determine_category_level(&self, token_index: usize) -> Option<(usize, usize)> {
         let mut headline_level: usize = 0;
-        let mut content: String = "".to_string();
 
-        if !matches!(self.tokens[token_index].tok_type, TokenType::Asterisk) {
-            return None;
+        match self.tokens[token_index].tok_type {
+            TokenType::Asterisk => (),
+            _ => return None,
         }
 
-        let mut index = token_index + 1;
+        let mut index = token_index;
 
         // Determine the level of the headline
         while index < self.tokens.len() {
@@ -35,82 +36,104 @@ impl Parser {
             }
         }
 
-        // Get headline content
+        Some((headline_level, index))
+    }
+
+    fn parse_category_block(
+        &self,
+        token_index: usize,
+        level: Option<usize>,
+    ) -> Option<(CategoryBlock, usize)> {
+        let mut index = token_index;
+
+        let lexeme_start = self.tokens[index].lexeme_start;
+        let mut lexeme_end = lexeme_start;
+
         while index < self.tokens.len() {
             let token = &self.tokens[index];
             index += 1;
             match token.tok_type {
                 TokenType::LineBreak => break,
-                _ => content.push_str(&token.lexeme),
+                _ => lexeme_end = token.lexeme_end,
             }
         }
 
         let mut block = CategoryBlock {
             id: None,
-            level: headline_level,
-            name: content.clone(),
+            level: level.unwrap_or_default(),
+            name: &self.document[lexeme_start..lexeme_end],
             children: Vec::new(),
         };
 
-        // Populate headline children
-        while let Some((new_block, new_index)) = self.parse_next_block(index) {
-            match new_block {
-                Block::Category(category_block) if category_block.level <= block.level => {
-                    break;
-                }
-                _ => {
-                    block.children.push(new_block);
-                    index = new_index;
-                }
-            }
+        while let Some((new_block, new_index)) = self.parse_next_block(index, level) {
+            block.children.push(new_block);
+            index = new_index;
         }
 
         Some((block, index))
     }
 
-    fn parse_rich_text_block(&mut self, token_index: usize) -> Option<(RichTextBlock, usize)> {
+    fn parse_rich_text_block(&self, token_index: usize) -> Option<(RichTextBlock, usize)> {
         let mut block = RichTextBlock {
             children: Vec::new(),
         };
 
-        let mut content: String = "".to_string();
-
         let mut index = token_index;
+
+        let lexeme_start = self.tokens[index].lexeme_start;
+        let mut lexeme_end = lexeme_start;
+
         while index < self.tokens.len() {
             let token = &self.tokens[index];
             index += 1;
             match token.tok_type {
                 TokenType::LineBreak => break,
-                _ => content.push_str(&token.lexeme),
+                _ => lexeme_end = token.lexeme_end,
             }
         }
 
-        let new_block = Block::Text(TextBlock { content });
+        let new_block = Block::Text(TextBlock {
+            content: &self.document[lexeme_start..lexeme_end],
+        });
 
         block.children.push(new_block);
 
         Some((block, index))
     }
 
-    fn parse_next_block(&mut self, token_index: usize) -> Option<(Block, usize)> {
+    fn parse_next_block(
+        &self,
+        token_index: usize,
+        category_level: Option<usize>,
+    ) -> Option<(Block, usize)> {
         if token_index >= self.tokens.len() {
             return None;
         }
 
-        if let Some((category, new_index)) = self.parse_category_block(token_index) {
-            Some((Block::Category(category), new_index))
-        } else if let Some((rich_text, new_index)) = self.parse_rich_text_block(token_index) {
-            Some((Block::RichText(rich_text), new_index))
+        // Determine if the next block is a category, if so, get its level
+        if let Some((level, index)) = self.determine_category_level(token_index) {
+            if let Some(current_category_level) = category_level {
+                if current_category_level >= level {
+                    return None;
+                }
+            }
+            if let Some((category, new_index)) = self.parse_category_block(index, Some(level)) {
+                return Some((Block::Category(category), new_index));
+            }
         } else {
-            None
+            if let Some((rich_text, new_index)) = self.parse_rich_text_block(token_index) {
+                return Some((Block::RichText(rich_text), new_index));
+            }
         }
+
+        None
     }
 
-    pub fn parse(&mut self) -> Vec<Block> {
+    pub fn parse(&self) -> Vec<Block> {
         let mut index = 0;
         let mut blocks = Vec::new();
 
-        while let Some((block, new_index)) = self.parse_next_block(index) {
+        while let Some((block, new_index)) = self.parse_next_block(index, None) {
             blocks.push(block);
             index = new_index;
         }
