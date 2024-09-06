@@ -4,8 +4,8 @@ Amble is an omnitool for your data, collecting information into a unified
 format, and providing powerful interfaces to program, view and manipulate
 that information.
 
-Amble is being developed first as a Neovim plugin, as a format for
-taking notes, and aggregating personal data. This will help formulate the core
+Amble is being developed first as a Neovim plugin and cli tool, as a format for
+taking notes, and aggregating information. This will help formulate the core
 of Amble, which is being developed as a shared library.
 
 Development will then move onto fleshing Amble out as an alternative document
