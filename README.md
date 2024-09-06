@@ -18,7 +18,7 @@ their Amble data.
    alongside facilities to serialize those notes into a sqlite database
    from Amble intermediate representation (AIR).
 2. Simple fold evaluation (no lisp integration)
-3. Propagate data updates backwards through notes when editing the results of folds
+3. Propagate data updates backwards through system when editing the results of folds
 4. Lisp integration into fold evaluation, alongside providing
    support for user defined lisp functions that can be used during
    fold evaluation
