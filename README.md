@@ -24,6 +24,8 @@ their Amble data.
    fold evaluation
 5. A JSON parser and renderer for AIR
 6. A web library for developing UIs on top of Amble data
+7. Other parsers/renderers for Markdown, XML, etc.
+8. Bindings for other languages, like Python, to efficiently script Amble
 
 ## Project Goals
 
