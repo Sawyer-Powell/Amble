@@ -82,7 +82,6 @@ and assign properties to those headlines.
 
 Elsewhere in your notes, you can define a *fold*, which matches certain patterns in your notes,
 and allows you to collect those matches in a new list.
-
 ```org
 * FOLD
   * FROM
@@ -92,6 +91,9 @@ and allows you to collect those matches in a new list.
   * TO
     * "TODO" todo-title
       :Due: due-date
+```
+generates:
+```org
 * TODO Design homepage layout
   :Due: <2023-10-14>
 * TODO Should sit down with Katie to scope out the upcoming management screen
@@ -102,7 +104,6 @@ result and the original data that result was pulled from, will be updated. **Fol
 
 You can do more advanced transformations through the use of an embedded Lisp interpreter,
 and use the `[]` syntax for capturing data into groups
-
 ```org
 * FOLD
   * FROM
@@ -113,6 +114,9 @@ and use the `[]` syntax for capturing data into groups
     * [(if-nil project "Uncategorized")]
       * todo-title "- due:" (date-to-string due-date)
         (if (> (today) due-date) "Overdue!" "Still Upcoming")
+```
+generates:
+```org
 * HR Activities
   * Organize team-building event - due: October 30th, 2023
     Overdue!
