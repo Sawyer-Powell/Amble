@@ -18,11 +18,12 @@ their Amble data.
    alongside facilities to serialize those notes into a sqlite database
    from Amble intermediate representation (AIR).
 2. Simple fold evaluation (no lisp integration)
-3. Lisp integration into fold evaluation, alongside providing
+3. Propagate data updates backwards through notes when editing the results of folds
+4. Lisp integration into fold evaluation, alongside providing
    support for user defined lisp functions that can be used during
    fold evaluation
-4. A JSON parser and renderer for AIR
-5. A web library for developing UIs on top of Amble data
+5. A JSON parser and renderer for AIR
+6. A web library for developing UIs on top of Amble data
 
 ## Project Goals
 
@@ -89,6 +90,8 @@ and allows you to collect those matches in a new list.
 * TODO Should sit down with Katie to scope out the upcoming management screen
   :Due: <2024-08-25>
 ```
+If you edit "Design homepage layout" to "Design layout for homepage", both the data in the fold
+result and the original data that result was pulled from, will be updated. **Folds allow you to both view your data, and efficiently updated data across your Amble instance**
 
 You can do more advanced transformations through the use of an embedded Lisp interpreter,
 and use the `[]` syntax for capturing data into groups
