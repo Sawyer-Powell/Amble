@@ -18,31 +18,27 @@ and non-technical users.
 3. Lisp integration into fold evaluation, alongside providing
    support for user defined lisp functions that can be uesd during
    fold evaluation
-4. Python and Javascript/Typescript syntax for constructing folds, 
-   alongside bindings for working with Amble data like a more traditional
-   database/document store.
-5. A JSON parser and renderer for AIR
-6. A web library for developing UIs on top of Amble data
+4. A JSON parser and renderer for AIR
+5. A web library for developing UIs on top of Amble data
 
 ## Project Goals
 
 Amble was motivated by the need for a better way to integrate the notes you take on your computer
 with the rest of your information. Power users often have trouble with current
-software offerings that fragment their data across apps and services. Amble first aims to provide a plugin for
+software offerings that fragment their data across apps and services. The core of amble is AIR, the 
+Amble Intermediate Representation. Amble is designed to take in data from a variety of formats, like
+org mode, markdown, JSON, xml/html, and transform that data into AIR. Once that data has been transformed, Amble
+is able to leverage its pattern matcher to allow you to query and manipulate that data efficiently.
+
+Because AIR is compatible with org mode, and markdown, you can interact with, and edit, your data
+like you would edit your notes. Amble first aims to provide a plugin for
 Neovim that allows users to interact with their Amble data in Markdown and Org mode, 
 making Amble a natural alternative to existing note taking/knowledge management systems.
 
-Amble's super powers are in its pattern matching system, allowing you to take any structure in your data, and transform
-it into any other structure. Have TODOS spread across your notes? Pattern match them into a single list of TODOS. 
-Want to view and edit your TODOS on the web? Take that list of todos, ask Amble to convert them to JSON, and send
-them off to a web server. When that web server sends back an updated JSON of TODOS, Amble will take that and update
-all of your TODOS across your data accordingly.
+Amble then aims to provide a web framework that can allow users to create UIs for manipulating and viewing
+their data.
 
-Amble's core is compiled as a shared library, and aims to provide bindings for a variety of popular languages. Giving
-you full access to its powerful systems for manipulating your data. Amble also aims to provide a cli to make it easy
-to import information from files across a variety of popular formats.
-
-### Amble Org Mode Interface
+## Amble Org Mode and Pattern Matching
 
 Like standard org mode, you can have headlines, todos,
 and assign properties to those headlines.
