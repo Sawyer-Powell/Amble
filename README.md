@@ -9,6 +9,20 @@ central way to manage fragmented data. One that provides convenience without
 sacrificing their control, or their privacy. That lends itself to power users 
 and non-technical users.
 
+# Roadmap
+
+1. *(current)* Neovim interface for writing and searching org mode notes, 
+   alongside facilities to serialize those notes into a sqlite database
+   from Amble intermediate representation (AIR).
+2. Implement simple fold evaluation (no lisp integration)
+3. Implement lisp integration into fold evaluation, alongside providing
+   support for user defined lisp functions that can be uesd during
+   fold evaluation
+4. Provide Python and Javascript/Typescript syntax for constructing folds, 
+   alongside general Python bindings for working with Amble data.
+5. Implement a JSON parser and renderer for AIR
+6. Develop a web library for developing UIs on top of Amble data
+
 ## Project Goals
 
 Amble was motivated by the need for a better way to integrate the notes you take on your computer
@@ -27,9 +41,7 @@ Amble's core is compiled as a shared library, and aims to provide bindings for a
 you full access to its powerful systems for manipulating your data. Amble also aims to provide a cli to make it easy
 to import information from files across a variety of popular formats.
 
-### Amble Org Mode Neovim Interface
-
-#### Note taking and Pattern Matching
+### Amble Org Mode Interface
 
 Like standard org mode, you can have headlines, todos,
 and assign properties to those headlines.
@@ -59,8 +71,10 @@ and assign properties to those headlines.
     Stacy was having performance issues pulling reports from the finance page
  ... 
 ```
+
 Elsewhere in your notes, you can define a *fold*, which matches certain patterns in your notes,
 and allows you to collect those matches in a new list.
+
 ```org
 * FOLD
   * FROM
@@ -75,8 +89,10 @@ and allows you to collect those matches in a new list.
 * TODO Should sit down with Katie to scope out the upcoming management screen
   :Due: <2024-08-25>
 ```
+
 You can do more advanced transformations through the use of an embedded Lisp interpreter,
 and use the `[]` syntax for capturing data into groups
+
 ```org
 * FOLD
   * FROM
@@ -86,7 +102,7 @@ and use the `[]` syntax for capturing data into groups
   * TO
     * [(if-nil project "Uncategorized")]
       * todo-title "- due:" (date-to-string due-date)
-        (if (> due-date today) "Overdue!" "Still Upcoming")
+        (if (> (today) due-date) "Overdue!" "Still Upcoming")
 * HR Activities
   * Organize team-building event - due: October 30th, 2023
     Overdue!
@@ -98,4 +114,11 @@ and use the `[]` syntax for capturing data into groups
     Overdue!
   * Should sit down with Katie to scope out the upcoming management screen - due: August 25th, 2024
     Still Upcoming
+```
 
+### Not just for notes
+
+Amble has a goal of being able to manage and organize large amounts of data. Performantly calculating folds,
+and searches in milliseconds. Down the road, we hope to provide tools for developers to easily have their
+amble system integrate data from many different sources, not just from their handwritten notes. Amble should
+work with any data that can be serialized into a tree of nodes with properties.
