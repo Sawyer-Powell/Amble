@@ -16,7 +16,7 @@ and non-technical users.
    from Amble intermediate representation (AIR).
 2. Simple fold evaluation (no lisp integration)
 3. Lisp integration into fold evaluation, alongside providing
-   support for user defined lisp functions that can be uesd during
+   support for user defined lisp functions that can be used during
    fold evaluation
 4. A JSON parser and renderer for AIR
 5. A web library for developing UIs on top of Amble data
