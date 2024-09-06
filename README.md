@@ -93,7 +93,7 @@ and allows you to collect those matches in a new list.
   :Due: <2024-08-25>
 ```
 If you edit "Design homepage layout" to "Design layout for homepage", both the data in the fold
-result and the original data that result was pulled from, will be updated. **Folds allow you to both view your data, and efficiently update your data across your Amble instance**
+result and the original data that result was pulled from, will be updated. **Folds allow you to both view your data, and efficiently update your data at its source.**
 
 You can do more advanced transformations through the use of an embedded Lisp interpreter,
 and use the `[]` syntax for capturing data into groups
