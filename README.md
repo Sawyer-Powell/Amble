@@ -14,14 +14,14 @@ and non-technical users.
 1. *(current)* Neovim interface for writing and searching org mode notes, 
    alongside facilities to serialize those notes into a sqlite database
    from Amble intermediate representation (AIR).
-2. Implement simple fold evaluation (no lisp integration)
-3. Implement lisp integration into fold evaluation, alongside providing
+2. Simple fold evaluation (no lisp integration)
+3. Lisp integration into fold evaluation, alongside providing
    support for user defined lisp functions that can be uesd during
    fold evaluation
-4. Provide Python and Javascript/Typescript syntax for constructing folds, 
+4. Python and Javascript/Typescript syntax for constructing folds, 
    alongside general Python bindings for working with Amble data.
-5. Implement a JSON parser and renderer for AIR
-6. Develop a web library for developing UIs on top of Amble data
+5. A JSON parser and renderer for AIR
+6. A web library for developing UIs on top of Amble data
 
 ## Project Goals
 
