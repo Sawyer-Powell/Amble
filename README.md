@@ -42,17 +42,20 @@ and assign properties to those headlines.
   :Project: HR Activities
   :Due: <2023-10-30>
 
+* TODO Need to do the laundry
+  :Due: <2023-09-20>
+
 * Redesign Sprint Meeting 2024-08-17
- ** UI Feedback
+  * UI Feedback
     Scott really like the design of the arrows, but would like
     more contrast in the button borders.
 
-  *** TODO Should sit down with Katie to scope out the upcoming management screen
+    * TODO Should sit down with Katie to scope out the upcoming management screen
       :Project: Website Redesign
       :Due: <2024-08-25>
       Make sure to think through how users are going to be onboarded
 
- ** API Feedback
+  * API Feedback
     Stacy was having performance issues pulling reports from the finance page
  ... 
 ```
@@ -60,24 +63,39 @@ Elsewhere in your notes, you can define a *fold*, which matches certain patterns
 and allows you to collect those matches in a new list.
 ```org
 * FOLD
- ** FROM
-  *** "TODO" todo-title
+  * FROM
+    * "TODO" todo-title
       :Project: "Website Redesign"
       :Due: due-date
- ** TO
-  *** "TODO" todo-title
+  * TO
+    * "TODO" todo-title
       :Due: due-date
 * TODO Design homepage layout
   :Due: <2023-10-14>
 * TODO Should sit down with Katie to scope out the upcoming management screen
   :Due: <2024-08-25>
 ```
+You can do more advanced transformations through the use of an embedded Lisp interpreter,
+and use the `[]` syntax for capturing data into groups
+```org
+* FOLD
+  * FROM
+    * "TODO" todo-title
+      :Project: project
+      :Due: due-date
+  * TO
+    * [(if-nil project "Uncategorized")]
+      * todo-title "- due:" (date-to-string due-date)
+        (if (> due-date today) "Overdue!" "Still Upcoming")
+* HR Activities
+  * Organize team-building event - due: October 30th, 2023
+    Overdue!
+* Uncategorized
+  * Need to do the laundry - due: September, 20th, 2023
+    Overdue!
+* Website Redesign
+  * Design homepage layout - due: October 14th, 2023
+    Overdue!
+  * Should sit down with Katie to scope out the upcoming management screen - due: August 25th, 2024
+    Still Upcoming
 
-## Amble is designed for non-technical users
-
-While use of Amble's core is suitable for highly technical people, it's flexibility allows us to build GUI systems
-suitable for non-technical people. 
-
-Once the core of Amble is stable, and provides value for power users, Amble aims to provide an extensible web interface,
-in a similar vein to Notion, that will allow those without programming experience to still leverage Amble's powerful
-internal systems.
