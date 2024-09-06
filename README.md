@@ -3,7 +3,7 @@
 
 ## What is Amble?
 
-Amble is an omnitool for your data, collecting information into a unified
+Amble is an omnitool for your data, allowing you to collect information from distinct sources into a unified
 format, and providing powerful interfaces to program, view and manipulate
 that information.
 
