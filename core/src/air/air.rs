@@ -46,13 +46,11 @@ impl<'a> CategoryBlock<'a> {
         }
     }
 
-    pub fn from_db_type(db_block: &'a DbCategoryBlock) -> Self {
+    pub fn from_db_type(db_block: &'a DbCategoryBlock, level: usize) -> Self {
         CategoryBlock {
             id: db_block.id.clone(),
             name: &db_block.name,
-            // TODO: Probably need to rethink how levels work in the system, since it's not
-            // generally useful in all circumstances
-            level: 0,
+            level,
             children: Vec::new(),
         }
     }

@@ -53,7 +53,10 @@ impl<'a> Parser<'a> {
             let token = &self.tokens[index];
             index += 1;
             match token.tok_type {
-                TokenType::LineBreak => break,
+                TokenType::LineBreak => {
+                    lexeme_end = token.lexeme_end;
+                    break;
+                }
                 _ => lexeme_end = token.lexeme_end,
             }
         }
@@ -87,7 +90,10 @@ impl<'a> Parser<'a> {
             let token = &self.tokens[index];
             index += 1;
             match token.tok_type {
-                TokenType::LineBreak => break,
+                TokenType::LineBreak => {
+                    lexeme_end = token.lexeme_end;
+                    break;
+                },
                 _ => lexeme_end = token.lexeme_end,
             }
         }

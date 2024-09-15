@@ -2,6 +2,7 @@ use std::ffi::{c_char, CStr, CString};
 mod air;
 mod db;
 mod parsing;
+mod rendering;
 
 pub use air::*;
 pub use db::AmbleDB;
@@ -9,6 +10,7 @@ use db::DbBlockMatrix;
 pub use parsing::Parser;
 
 use anyhow::{anyhow, Context};
+use rendering::render_to_org;
 
 #[repr(C)]
 pub struct TopLevelCategory {
@@ -65,7 +67,7 @@ pub extern "C" fn write_category(category: *const TopLevelCategory) -> *mut c_ch
         id: Some(1),
         name: &rust_category.name,
         children: blocks,
-        level: 0,
+        level: 1,
     };
 
     db.write_top_level_category(&category)
@@ -78,8 +80,14 @@ pub extern "C" fn write_category(category: *const TopLevelCategory) -> *mut c_ch
         .expect("Could not produce flat vec of db blocks");
 
     let category_block = matrix
-        .get_category_block(&flat_blocks)
+        .form_category_block_tree(&flat_blocks)
         .expect("Could not get category block");
 
-    CString::new(rust_category.content).unwrap().into_raw()
+    //dbg!(&category_block);
+
+    let out_string = render_to_org(Block::Category(category_block));
+
+    //dbg!(&out_string);
+
+    CString::new(out_string).unwrap().into_raw()
 }

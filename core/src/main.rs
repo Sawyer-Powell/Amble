@@ -1,13 +1,17 @@
 mod air;
 mod db;
 mod parsing;
+mod rendering;
 
 use std::fs;
 
 pub use air::CategoryBlock;
 pub use db::AmbleDB;
-use db::DbBlockMatrix;
 pub use parsing::Parser;
+
+use air::Block;
+use db::DbBlockMatrix;
+use rendering::render_to_org;
 
 fn main() {
     let document =
@@ -22,7 +26,7 @@ fn main() {
         id: Some(1),
         name: "MapReduce",
         children: blocks,
-        level: 0,
+        level: 1,
     };
 
     db.write_top_level_category(&category)
@@ -35,6 +39,10 @@ fn main() {
         .expect("Could not produce flat vec of db blocks");
 
     let category_block = matrix
-        .get_category_block(&flat_blocks)
+        .form_category_block_tree(&flat_blocks)
         .expect("Could not get category block");
+
+    dbg!(&category_block);
+
+    println!("{}", render_to_org(Block::Category(category_block)));
 }

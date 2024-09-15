@@ -122,6 +122,7 @@ impl DbBlockMatrix {
         db_blocks: &'a Vec<DbBlock>,
         parent_block: &DbBlock,
         start_index: usize,
+        level: usize,
     ) -> Result<(Vec<Block>, usize), anyhow::Error> {
         let mut children: Vec<Block> = Vec::new();
         let mut index = start_index;
@@ -138,13 +139,14 @@ impl DbBlockMatrix {
                                     .id
                                     .context("Id was not present on db category")?
                             {
-                                let mut child_cat = CategoryBlock::from_db_type(db_cat);
+                                let mut child_cat = CategoryBlock::from_db_type(db_cat, level);
 
                                 let (new_children, new_index) = self
                                     .get_child_blocks(
                                         db_blocks,
                                         &DbBlock::Category(db_cat.clone()),
                                         index,
+                                        level + 1,
                                     )
                                     .context("Failed to get child blocks of category")?;
 
@@ -171,6 +173,7 @@ impl DbBlockMatrix {
                                         db_blocks,
                                         &DbBlock::RichText(db_rt.clone()),
                                         index,
+                                        level,
                                     )
                                     .context("Failed to get child blocks of category")?;
 
@@ -222,17 +225,17 @@ impl DbBlockMatrix {
         Ok((children, index))
     }
 
-    pub fn get_category_block<'a>(
+    pub fn form_category_block_tree<'a>(
         &'a self,
         db_blocks: &'a Vec<DbBlock>
     ) -> Result<CategoryBlock, anyhow::Error> {
         let db_block = &db_blocks[0];
 
         if let DbBlock::Category(db_cat_block) = db_block {
-            let mut cat_block = CategoryBlock::from_db_type(&db_cat_block);
+            let mut cat_block = CategoryBlock::from_db_type(&db_cat_block, 0);
 
             let (new_children, _) = self
-                .get_child_blocks(&db_blocks, &db_block, 1)
+                .get_child_blocks(&db_blocks, &db_block, 1, 1)
                 .context("Could not get child blocks in get_category_blocks")?;
 
             cat_block.children = new_children;
