@@ -83,11 +83,45 @@ pub extern "C" fn write_category(category: *const TopLevelCategory) -> *mut c_ch
         .form_category_block_tree(&flat_blocks)
         .expect("Could not get category block");
 
-    //dbg!(&category_block);
-
     let out_string = render_to_org(Block::Category(category_block));
 
-    //dbg!(&out_string);
-
     CString::new(out_string).unwrap().into_raw()
+}
+
+#[repr(C)]
+pub struct TopLevelCategoriesResult {
+    id: i64,
+    name: *const c_char,
+}
+
+#[repr(C)]
+pub struct TopLevelCategoryResults {
+    categories: *const TopLevelCategoriesResult,
+    length: usize,
+}
+
+#[no_mangle]
+pub extern "C" fn get_top_level_categories() -> TopLevelCategoryResults {
+    let mut db = AmbleDB::new("amble.sqlite").expect("Could not create db");
+
+    let db_categories = db
+        .get_top_level_categories()
+        .expect("Should be able to get categories");
+
+    let mut tl_categories: Vec<TopLevelCategoriesResult> = db_categories
+        .into_iter()
+        .map(|cat| TopLevelCategoriesResult {
+            id: cat.id.expect("Id was not present"),
+            name: CString::new(cat.name).unwrap().into_raw(),
+        })
+        .collect();
+
+    let tl_results = TopLevelCategoryResults {
+        categories: tl_categories.as_mut_ptr(),
+        length: tl_categories.len(),
+    };
+
+    std::mem::forget(tl_categories);
+
+    return tl_results;
 }

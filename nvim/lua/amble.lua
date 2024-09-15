@@ -18,6 +18,11 @@ function amble.on_buf_write()
 	)
 end
 
+function amble.get_top_level_categories()
+	local categories = amble.ffi.get_top_level_categories()
+end
+
 vim.api.nvim_create_user_command("AmbleWrite", amble.on_buf_write, {})
+vim.api.nvim_create_user_command("AmbleList", amble.get_top_level_categories, {})
 
 return amble

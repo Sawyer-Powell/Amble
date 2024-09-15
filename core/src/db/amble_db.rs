@@ -3,15 +3,15 @@ use std::env;
 use anyhow::Context;
 use rusqlite::Connection;
 
-use crate::air::CategoryBlock;
+use crate::{air::CategoryBlock, air::DbCategoryBlock};
 
-use super::{schema::AMBLE_DB_SCHEMA, DbBlockMatrix};
+use super::schema::AMBLE_DB_SCHEMA;
 
 pub struct AmbleDB {
     pub connection: Connection,
 }
 
-impl AmbleDB {
+impl<'a> AmbleDB {
     pub fn new(filename: &str) -> Result<Self, anyhow::Error> {
         let current_dir = match env::current_dir() {
             Ok(path) => path,
@@ -27,6 +27,37 @@ impl AmbleDB {
         }
 
         return Ok(AmbleDB { connection });
+    }
+
+    pub fn get_top_level_categories(&mut self) -> Result<Vec<DbCategoryBlock>, anyhow::Error> {
+        let mut stmt = self
+            .connection
+            .prepare(
+                "
+            SELECT id, name
+            FROM category_blocks
+            WHERE parent_category_id = null",
+            )
+            .context("Could not prepare select statement")?;
+
+        let mut categories: Vec<DbCategoryBlock> = Vec::new();
+
+        let row_iter = stmt
+            .query_map([], |row| {
+                Ok(DbCategoryBlock {
+                    id: row.get(0)?,
+                    name: row.get(1)?,
+                    parent_category_id: row.get(2)?,
+                })
+            })
+            .context("Could not prepare select statement query map")?;
+
+        for row in row_iter {
+            let category = row.context("Error getting row")?;
+            categories.push(category);
+        }
+
+        return Ok(categories);
     }
 
     pub fn write_top_level_category(
