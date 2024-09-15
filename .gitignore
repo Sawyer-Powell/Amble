@@ -3,3 +3,4 @@ core/target
 core/perf.data
 core/perf.data.old
 core/flamegraph.svg
+*.sqlite
