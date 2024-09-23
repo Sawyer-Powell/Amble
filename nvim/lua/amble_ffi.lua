@@ -2,24 +2,25 @@ local ffi = require("ffi")
 
 ffi.cdef [[
 typedef struct {
-	int id;
+	int64_t id;
 	const char* name;
 	const char* content;
 } TopLevelCategory;
 
-char* write_category(TopLevelCategory* category);
+TopLevelCategory write_category(TopLevelCategory* category);
 
 typedef struct {
-	int id;
+	int64_t id;
 	const char* name;
-} TopLevelCategoriesResult;
+} TopLevelCategoryResult;
 
 typedef struct {
-	const TopLevelCategoriesResult* categories;
-	int length;
+	const TopLevelCategoryResult* categories;
+	int64_t length;
 } TopLevelCategoryResults;
 
 TopLevelCategoryResults get_top_level_categories();
+char* get_category_content(int64_t id);
 ]]
 
 local amble_ffi = {}
@@ -37,20 +38,33 @@ function amble_ffi.write_category(id, name, content)
 			content = content,
 		}
 	)
-	local result_ptr = amble_ffi.interface.write_category(category)
-	return ffi.string(result_ptr)
+
+	local top_level_category = amble_ffi.interface.write_category(category)
+
+	return {
+		id = tonumber(top_level_category.id),
+		content = ffi.string(top_level_category.content),
+		name = ffi.string(top_level_category.name)
+	}
 end
 
 function amble_ffi.get_top_level_categories()
 	local results = amble_ffi.interface.get_top_level_categories();
 	local categories = {}
 
-	for i = 0, results.length - 1 do
-		print(results.categories[i].name)
-		categories[i+1] = results.categories[i].value
+	for i = 0, tonumber(results.length) - 1 do
+		categories[i+1] = {
+			name = ffi.string(results.categories[i].name),
+			id = tonumber(results.categories[i].id)
+		}
 	end
 
 	return categories
+end
+
+function amble_ffi.get_category_content(id)
+	local content_ptr = amble_ffi.interface.get_category_content(id)
+	return ffi.string(content_ptr)
 end
 
 return amble_ffi

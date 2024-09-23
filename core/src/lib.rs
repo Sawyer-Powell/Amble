@@ -49,7 +49,7 @@ impl TopLevelCategory {
 }
 
 #[no_mangle]
-pub extern "C" fn write_category(category: *const TopLevelCategory) -> *mut c_char {
+pub extern "C" fn write_category(category: *const TopLevelCategory) -> TopLevelCategory {
     let rust_category = unsafe {
         category
             .as_ref()
@@ -64,16 +64,18 @@ pub extern "C" fn write_category(category: *const TopLevelCategory) -> *mut c_ch
     let mut db = AmbleDB::new("amble.sqlite").expect("Could not create db");
 
     let category = CategoryBlock {
-        id: Some(1),
+        id: if rust_category.id > 0 { Some(rust_category.id) } else { None },
         name: &rust_category.name,
         children: blocks,
         level: 1,
     };
 
-    db.write_top_level_category(&category)
+    let last_id = db.write_top_level_category(&category)
         .expect("Should be able to save category to database");
 
-    let matrix = DbBlockMatrix::new(&db.connection, 1).expect("Could not create db block matrix");
+    let cat_id = if rust_category.id > 0 { rust_category.id } else { last_id };
+
+    let matrix = DbBlockMatrix::new(&db.connection, cat_id).expect("Could not create db block matrix");
 
     let flat_blocks = matrix
         .produce_flat_db_block_vec(&db.connection)
@@ -85,18 +87,24 @@ pub extern "C" fn write_category(category: *const TopLevelCategory) -> *mut c_ch
 
     let out_string = render_to_org(Block::Category(category_block));
 
-    CString::new(out_string).unwrap().into_raw()
+    let out_cat = TopLevelCategory {
+        id: cat_id,
+        name: CString::new(rust_category.name).unwrap().into_raw(),
+        content: CString::new(out_string).unwrap().into_raw(),
+    };
+
+    out_cat
 }
 
 #[repr(C)]
-pub struct TopLevelCategoriesResult {
+pub struct TopLevelCategoryResult {
     id: i64,
     name: *const c_char,
 }
 
 #[repr(C)]
 pub struct TopLevelCategoryResults {
-    categories: *const TopLevelCategoriesResult,
+    categories: *const TopLevelCategoryResult,
     length: usize,
 }
 
@@ -108,9 +116,9 @@ pub extern "C" fn get_top_level_categories() -> TopLevelCategoryResults {
         .get_top_level_categories()
         .expect("Should be able to get categories");
 
-    let mut tl_categories: Vec<TopLevelCategoriesResult> = db_categories
+    let mut tl_categories: Vec<TopLevelCategoryResult> = db_categories
         .into_iter()
-        .map(|cat| TopLevelCategoriesResult {
+        .map(|cat| TopLevelCategoryResult {
             id: cat.id.expect("Id was not present"),
             name: CString::new(cat.name).unwrap().into_raw(),
         })
@@ -124,4 +132,23 @@ pub extern "C" fn get_top_level_categories() -> TopLevelCategoryResults {
     std::mem::forget(tl_categories);
 
     return tl_results;
+}
+
+#[no_mangle]
+pub extern "C" fn get_category_content(id: i64) -> *mut c_char {
+    let db = AmbleDB::new("amble.sqlite").expect("Could not create db");
+
+    let matrix = DbBlockMatrix::new(&db.connection, id).expect("Could not create db block matrix");
+
+    let flat_blocks = matrix
+        .produce_flat_db_block_vec(&db.connection)
+        .expect("Could not produce flat vec of db blocks");
+
+    let category_block = matrix
+        .form_category_block_tree(&flat_blocks)
+        .expect("Could not get category block");
+
+    let content = render_to_org(Block::Category(category_block));
+
+    CString::new(content).unwrap().into_raw()
 }

@@ -36,7 +36,7 @@ impl<'a> AmbleDB {
                 "
             SELECT id, name
             FROM category_blocks
-            WHERE parent_category_id = null",
+            WHERE parent_category_id IS NULL",
             )
             .context("Could not prepare select statement")?;
 
@@ -47,7 +47,7 @@ impl<'a> AmbleDB {
                 Ok(DbCategoryBlock {
                     id: row.get(0)?,
                     name: row.get(1)?,
-                    parent_category_id: row.get(2)?,
+                    parent_category_id: None,
                 })
             })
             .context("Could not prepare select statement query map")?;
@@ -63,7 +63,7 @@ impl<'a> AmbleDB {
     pub fn write_top_level_category(
         &mut self,
         category: &CategoryBlock,
-    ) -> Result<(), anyhow::Error> {
+    ) -> Result<i64, anyhow::Error> {
         // NOTE: Synchronous off is used to significantly increase our write
         // speeds as far as this program is concerned. Has some safety/data
         // integrity implications
@@ -79,8 +79,9 @@ impl<'a> AmbleDB {
             .write_to_db(&tx, None)
             .context("Should be able to write categroy to db")?;
 
+        let last_id = tx.last_insert_rowid();
         tx.commit().context("Could not commit transaction")?;
 
-        Ok(())
+        Ok(last_id)
     }
 }
