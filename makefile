@@ -2,7 +2,7 @@ TARGET = core
 DESTDIR = /usr/local/lib
 CARGO = cargo
 
-.PHONY: all clean install
+.PHONY: all clean install uninstall
 
 all:
 	$(CARGO) build --release --manifest-path=$(TARGET)/Cargo.toml
