@@ -28,7 +28,7 @@ To build and install the shared library (required for using the Neovim wrapper) 
 from Rust's [official website](https://www.rust-lang.org/tools/install).
 
 ```bash
-git clone https://github.com/Sawyer-Powell/Amble
+git clone https://github.com/Sawyer-Powell/Amble --depth=1
 cd Amble
 make
 sudo make install
