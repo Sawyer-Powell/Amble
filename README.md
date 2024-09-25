@@ -17,6 +17,8 @@ their Amble data.
 
 ### Install
 
+Note that Amble is in active development and makes no promises of mitigating breaking changes.
+
 Currently Amble provides a shared C library, alongside a wrapper for Neovim.
 
 #### Installing Amble Core
@@ -45,7 +47,7 @@ Here's an example configuration using the [lazy.nvim](https://github.com/folke/l
     opts = {},
     config = function()
         require('amble').init()
-        vim.keymap.set("n", "<leader>an", ":AmbleNew ")
+        vim.keymap.set("n", "<leader>an", ":AmbleNew<CR>")
         vim.keymap.set("n", "<leader>af", ":Telescope amble picker<CR>")
     end
 }
