@@ -1,9 +1,9 @@
 local amble = {}
 
-function amble.setup()
-	amble.ffi = require("amble.amble_ffi")
+function amble.init()
+	amble.ffi = require("amble_ffi")
 
-	amble.ffi.init("./core/target/release/libamble.so")
+	amble.ffi.init("/usr/local/lib/libamble.so")
 end
 
 function amble.on_buf_write(category)
