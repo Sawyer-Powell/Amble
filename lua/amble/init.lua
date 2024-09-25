@@ -1,7 +1,7 @@
 local amble = {}
 
 function amble.init()
-	amble.ffi = require("amble_ffi")
+	amble.ffi = require("amble.amble_ffi")
 
 	amble.ffi.init("/usr/local/lib/libamble.so")
 end
