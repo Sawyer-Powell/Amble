@@ -17,15 +17,15 @@ their Amble data.
 
 # Roadmap
 
-1. **(current)** Neovim interface for writing and searching org mode notes, 
+1. **(done)** Neovim interface for writing and searching org mode notes, 
    alongside facilities to serialize those notes into a sqlite database
    from Amble intermediate representation (AIR).
    1. Org mode parser **(done)**
    2. Serialize into sqlite **(done)**
    3. De-serialize from sqlite **(done)**
    4. Lua interface to Amble shared library **(done)**
-   5. Search, save, and edit functionalities for Neovim **(current)**
-2. Simple fold evaluation (no lisp integration)
+   5. Search, save, and edit functionalities for Neovim **(done)**
+2. **(current)** Simple fold evaluation (no lisp integration)
 3. Propagate data updates backwards through system when editing the results of folds
 4. Lisp integration into fold evaluation, alongside providing
    support for user defined lisp functions that can be used during
