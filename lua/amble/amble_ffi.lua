@@ -54,8 +54,8 @@ function amble_ffi.get_top_level_categories()
 
 	for i = 0, tonumber(results.length) - 1 do
 		categories[i+1] = {
-			name = ffi.string(results.categories[i].name),
-			id = tonumber(results.categories[i].id)
+			id = tonumber(results.categories[i].id),
+			name = tostring(ffi.string(results.categories[i].name)),
 		}
 	end
 

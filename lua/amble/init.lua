@@ -1,7 +1,7 @@
 local amble = {}
 
-function amble.init()
-	amble.ffi = require("amble_ffi")
+function amble.setup()
+	amble.ffi = require("amble.amble_ffi")
 
 	amble.ffi.init("./core/target/release/libamble.so")
 end
@@ -28,6 +28,11 @@ function amble.is_file_open(path)
 	end
 
 	return false
+end
+
+function amble.get_category_content(category_id)
+	local content = amble.ffi.get_category_content(category_id)
+	return content
 end
 
 function amble.open_category(category)
@@ -58,18 +63,20 @@ function amble.open_category(category)
 	})
 end
 
-function amble.select_category()
+function amble.get_categories()
 	local categories = amble.ffi.get_top_level_categories()
 
-	local choices = {}
+	return categories
 
-	for index, value in ipairs(categories) do
-		table.insert(choices, index .. ". " .. value.name)
-	end
+	--local choices = {}
 
-	local choice = vim.fn.inputlist(choices)
+	--for _, value in ipairs(categories) do
+	--	table.insert(choices, "(" .. value.id .. ") " .. value.name)
+	--end
 
-	amble.open_category(categories[choice])
+	----amble.open_category(categories[choice])
+
+	--return choices
 end
 
 function amble.new_category()
@@ -84,7 +91,6 @@ function amble.new_category()
 	amble.open_category(category)
 end
 
-vim.api.nvim_create_user_command("AmbleList", amble.select_category, {})
 vim.api.nvim_create_user_command("AmbleNew", amble.new_category, {})
 
 return amble
