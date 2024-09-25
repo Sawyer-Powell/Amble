@@ -15,6 +15,42 @@ Development will then move onto fleshing Amble out as an alternative document
 store, providing facilities for users to build web applications on top of
 their Amble data.
 
+### Install
+
+Currently Amble provides a shared C library, alongside a wrapper for Neovim.
+
+#### Installing Amble Core
+
+To build and install the shared library (required for using the Neovim wrapper) you can use the provided
+`makefile`. **Ensure that you have the rust toolchain installed.** You can install the Rust toolchain
+from Rust's [official website](https://www.rust-lang.org/tools/install).
+
+```bash
+git clone https://github.com/Sawyer-Powell/Amble
+cd Amble
+make
+sudo make install
+```
+
+#### Installing Amble Neovim
+
+You can use any package manager you like. Amble depends on [telescope](https://github.com/nvim-telescope/telescope.nvim/) to
+function properly.
+
+Here's an example configuration using the [lazy.nvim](https://github.com/folke/lazy.nvim) package manager:
+
+```lua
+{
+    "Sawyer-Powell/Amble",
+    opts = {},
+    config = function()
+        require('amble').init()
+        vim.keymap.set("n", "<leader>an", ":AmbleNew ")
+        vim.keymap.set("n", "<leader>af", ":Telescope amble picker<CR>")
+    end
+}
+```
+
 # Roadmap
 
 1. **(done)** Neovim interface for writing and searching org mode notes, 
