@@ -4,12 +4,14 @@ use std::usize;
 pub enum TokenType {
     Asterisk,     // *
     EqualsSign,   // =
-    Hyphen,       // -
     LineBreak,    // \r\n or \n
     Bar,          // |
     RBracket,     // ]
     LBracket,     // [
     Colon,        // :
+    DoubleQuote,  // "
+    RParen,       // )
+    LParen,       // (
     HashPlus,     // #+
     Text,         // Normal text that you'd normally write
     NumberPeriod, // '1.', '2.', etc..
@@ -52,8 +54,10 @@ impl Tokenizer {
     fn peek_next_token(&mut self, index: usize) -> (TokenType, usize) {
         match self.peek_next_char(index) {
             Some('*') => (TokenType::Asterisk, index + 1),
+            Some('"') => (TokenType::DoubleQuote, index + 1),
+            Some('(') => (TokenType::LParen, index + 1),
+            Some(')') => (TokenType::RParen, index + 1),
             Some('=') => (TokenType::EqualsSign, index + 1),
-            Some('-') => (TokenType::Hyphen, index + 1),
             Some('\n') => (TokenType::LineBreak, index + 1),
             Some('\r') if self.peek_next_char(index + 1) == Some('\n') => {
                 (TokenType::LineBreak, index + 2)

@@ -18,6 +18,7 @@ pub enum Block<'a> {
 
 // -----------------------------------------------------------
 
+
 #[derive(Debug)]
 pub struct CategoryBlock<'a> {
     pub id: Option<i64>,

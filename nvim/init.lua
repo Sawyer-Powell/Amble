@@ -5,7 +5,7 @@ vim.g.mapleader = " "
 
 vim.api.nvim_set_keymap('n', '<leader>q', ':q!<CR>', {})
 
-require('amble').setup()
+require('amble').init()
 vim.api.nvim_set_keymap('n', '<leader>an', ':AmbleNew<CR>', {})
 
 local builtin = require('telescope.builtin')
