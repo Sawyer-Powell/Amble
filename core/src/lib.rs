@@ -3,6 +3,7 @@ mod air;
 mod db;
 mod parsing;
 mod rendering;
+mod matching;
 
 pub use air::*;
 pub use db::AmbleDB;
@@ -68,6 +69,7 @@ pub extern "C" fn write_category(category: *const TopLevelCategory) -> TopLevelC
         name: &rust_category.name,
         children: blocks,
         level: 1,
+        matches: Vec::new()
     };
 
     let last_id = db.write_top_level_category(&category)

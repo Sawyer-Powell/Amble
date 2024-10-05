@@ -1,12 +1,14 @@
+use std::collections::HashMap;
+use std::ptr;
+
 use crate::{air::Block, parsing::Tokenizer, CategoryBlock};
-use crate::Parser;
 
 use super::value_matcher::ValueMatcher;
 
 #[derive(Debug)]
-struct CategoryMatcher {
+pub struct CategoryMatcher {
     title: ValueMatcher,
-    body: Vec<CategoryMatcher>,
+    pub body: Vec<CategoryMatcher>,
 }
 
 impl CategoryMatcher {
@@ -30,11 +32,49 @@ impl CategoryMatcher {
             body: child_category_matchers,
         }
     }
+
+    pub fn do_match(&self, category: &CategoryBlock) -> Option<HashMap<String, String>> {
+        let captures = self.title.capture(category.name)?;
+
+        // check the children to see if they have matches
+        for child_matcher in self.body.as_slice() {
+            let mut child_matcher_found = false;
+
+            if category.children.len() < self.body.len() {
+                return None;
+            }
+
+            for child in category.children.as_slice() {
+                match child {
+                    Block::Category(child_category) => {
+                        for _match in child_category.matches.as_slice() {
+                            if ptr::eq(*_match, child_matcher) {
+                                child_matcher_found = true;
+                                break;
+                            }
+                        }
+
+                        if child_matcher_found {
+                            break;
+                        }
+
+                    }
+                    _ => (),
+                }
+            }
+
+            if !child_matcher_found {
+                return None;
+            }
+        }
+
+        Some(captures)
+    }
 }
 
 #[derive(Debug)]
-struct FoldFrom {
-    matchers: Vec<CategoryMatcher>,
+pub struct FoldFrom {
+    pub matchers: Vec<CategoryMatcher>,
 }
 
 impl FoldFrom {
@@ -57,7 +97,7 @@ impl FoldFrom {
 
 #[derive(Debug)]
 struct FoldInto {
-    matchers: Vec<CategoryMatcher>,
+    pub matchers: Vec<CategoryMatcher>,
 }
 
 impl FoldInto {
@@ -80,8 +120,8 @@ impl FoldInto {
 
 #[derive(Debug)]
 pub struct Fold {
-    from: FoldFrom,
-    into: FoldInto,
+    pub from: FoldFrom,
+    pub into: FoldInto,
 }
 
 impl Fold {

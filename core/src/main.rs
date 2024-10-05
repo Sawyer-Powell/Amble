@@ -28,6 +28,7 @@ fn main() {
         name: "MapReduce",
         children: blocks,
         level: 1,
+        matches: Vec::new()
     };
 
     db.write_top_level_category(&category)

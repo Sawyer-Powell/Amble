@@ -66,6 +66,7 @@ impl<'a> Parser<'a> {
             level: level.unwrap_or_default(),
             name: &self.document[lexeme_start..lexeme_end],
             children: Vec::new(),
+            matches: Vec::new()
         };
 
         while let Some((new_block, new_index)) = self.parse_next_block(index, level) {

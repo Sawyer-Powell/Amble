@@ -1,5 +1,8 @@
+use std::collections::HashSet;
+
 use anyhow::{anyhow, Context};
 use rusqlite::Transaction;
+use crate::matching::fold::CategoryMatcher;
 
 use super::db_io::{DbCategoryBlock, DbIO, DbRichTextBlock, DbTextBlock};
 
@@ -25,6 +28,7 @@ pub struct CategoryBlock<'a> {
     pub name: &'a str,
     pub level: usize,
     pub children: Vec<Block<'a>>,
+    pub matches: Vec<&'a CategoryMatcher>
 }
 
 impl<'a> Clone for CategoryBlock<'a> {
@@ -34,6 +38,7 @@ impl<'a> Clone for CategoryBlock<'a> {
             name: self.name,
             level: self.level,
             children: Vec::new(),
+            matches: Vec::new()
         }
     }
 }
@@ -53,6 +58,7 @@ impl<'a> CategoryBlock<'a> {
             name: &db_block.name,
             level,
             children: Vec::new(),
+            matches: Vec::new()
         }
     }
 

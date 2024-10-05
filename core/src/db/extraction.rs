@@ -274,6 +274,7 @@ mod tests {
             name: "Test Category",
             level: 0,
             children: blocks,
+            matches: Vec::new()
         };
 
         let tx = db

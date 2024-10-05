@@ -1,12 +1,13 @@
+pub mod fold;
 mod value_matcher;
-mod fold;
 
 #[cfg(test)]
 mod tests {
-    use crate::{Block, Parser};
+    use crate::{Block, CategoryBlock, Parser};
 
     use crate::{
-        matching::value_matcher::{get_position_of_substring, ValueMatcher}, parsing::Tokenizer
+        matching::value_matcher::{get_position_of_substring, ValueMatcher},
+        parsing::Tokenizer,
     };
 
     use super::fold::*;
@@ -26,26 +27,78 @@ mod tests {
         dbg!(matcher.capture(test));
     }
 
-        #[test]
+    fn get_flat_matchers<'a>(matcher: &'a CategoryMatcher) -> Vec<&'a CategoryMatcher> {
+        let mut children: Vec<&'a CategoryMatcher> = Vec::new();
+
+        for child in matcher.body.as_slice() {
+            children.extend(get_flat_matchers(child));
+        }
+
+        children.push(&matcher);
+        children
+    }
+
+    fn annotate<'a>(category: &mut CategoryBlock<'a>, matchers: &Vec<&'a CategoryMatcher>) {
+        for child in category.children.as_mut_slice() {
+            match child {
+                Block::Category(child) => {
+                    annotate(child, matchers);
+                }
+                _ => (),
+            }
+        }
+
+
+        for matcher in matchers {
+            if let Some(m) = matcher.do_match(category) {
+                dbg!(m);
+                category.matches.push(*matcher);
+            }
+        }
+    }
+
+    #[test]
     fn parse_fold() {
-        let test = r#"* TODO My life is amazing
+        let test = r#"
 * TODO Do this other thing
+** DUE next week 
+** EFFORT 23pts
 * FOLD
 ** FROM
 *** "TODO" title
-**** "LAST" last-title
+**** "DUE" due-date
+**** "EFFORT" effort
 ** INTO
 *** "UHOH" title"#;
 
         let parser = Parser::new(test);
-        let blocks = parser.parse();
+        let mut blocks = parser.parse();
 
-        for block in blocks {
+        let mut folds = Vec::new();
+
+        for block in blocks.as_slice() {
             match block {
                 Block::Category(category) => {
                     if let Some(fold) = Fold::parse(&category) {
-                        dbg!(fold);
+                        folds.push(fold);
                     }
+                }
+                _ => (),
+            }
+        }
+
+        let mut matchers: Vec<&CategoryMatcher> = Vec::new();
+
+        for fold in folds.as_slice() {
+            for matcher in fold.from.matchers.as_slice() {
+                matchers.extend(get_flat_matchers(matcher));
+            }
+        }
+
+        for block in blocks.as_mut_slice() {
+            match block {
+                Block::Category(category) => {
+                    annotate(category, &matchers);
                 }
                 _ => (),
             }
