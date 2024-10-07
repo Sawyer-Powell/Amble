@@ -34,9 +34,11 @@ impl CategoryMatcher {
     }
 
     pub fn do_match(&self, category: &CategoryBlock) -> Option<HashMap<String, String>> {
-        let captures = self.title.capture(category.name)?;
+        // Capture information from the category block itself
+        let mut captures = self.title.capture(category.name)?;
 
-        // check the children to see if they have matches
+        // Check the children of the category block to see if the
+        // the children match the patterns of this matchers children
         for child_matcher in self.body.as_slice() {
             let mut child_matcher_found = false;
 
@@ -47,8 +49,10 @@ impl CategoryMatcher {
             for child in category.children.as_slice() {
                 match child {
                     Block::Category(child_category) => {
-                        for _match in child_category.matches.as_slice() {
+                        for (index, _match) in child_category.matches.as_slice().iter().enumerate()
+                        {
                             if ptr::eq(*_match, child_matcher) {
+                                captures.extend(child_category.captures[index].clone());
                                 child_matcher_found = true;
                                 break;
                             }
@@ -57,7 +61,6 @@ impl CategoryMatcher {
                         if child_matcher_found {
                             break;
                         }
-
                     }
                     _ => (),
                 }
@@ -69,6 +72,11 @@ impl CategoryMatcher {
         }
 
         Some(captures)
+    }
+
+    pub fn generate_block_from_captures(&self, captures: &HashMap<String, String>) -> String {
+        let title = self.title.generate(captures);
+        return title;
     }
 }
 
@@ -96,7 +104,7 @@ impl FoldFrom {
 }
 
 #[derive(Debug)]
-struct FoldInto {
+pub struct FoldInto {
     pub matchers: Vec<CategoryMatcher>,
 }
 

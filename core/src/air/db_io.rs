@@ -1,5 +1,5 @@
-use rusqlite::{Transaction, Connection};
 use anyhow::{anyhow, Context};
+use rusqlite::{Connection, Transaction};
 
 #[derive(Debug)]
 pub enum DbBlock {
@@ -31,7 +31,7 @@ impl Clone for DbCategoryBlock {
         DbCategoryBlock {
             id: self.id,
             name: self.name.clone(),
-            parent_category_id: self.parent_category_id.clone()
+            parent_category_id: self.parent_category_id.clone(),
         }
     }
 }
@@ -128,7 +128,7 @@ impl Clone for DbRichTextBlock {
     fn clone(&self) -> Self {
         DbRichTextBlock {
             id: self.id,
-            parent_category_id: self.parent_category_id
+            parent_category_id: self.parent_category_id,
         }
     }
 }
@@ -229,7 +229,7 @@ impl Clone for DbTextBlock {
             id: self.id,
             content: self.content.clone(),
             parent_category_id: self.parent_category_id,
-            parent_rich_text_block_id: self.parent_rich_text_block_id
+            parent_rich_text_block_id: self.parent_rich_text_block_id,
         }
     }
 }

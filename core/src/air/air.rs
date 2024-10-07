@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 
 use anyhow::{anyhow, Context};
 use rusqlite::Transaction;
@@ -28,7 +28,8 @@ pub struct CategoryBlock<'a> {
     pub name: &'a str,
     pub level: usize,
     pub children: Vec<Block<'a>>,
-    pub matches: Vec<&'a CategoryMatcher>
+    pub matches: Vec<&'a CategoryMatcher>,
+    pub captures: Vec<HashMap<String, String>>
 }
 
 impl<'a> Clone for CategoryBlock<'a> {
@@ -38,7 +39,8 @@ impl<'a> Clone for CategoryBlock<'a> {
             name: self.name,
             level: self.level,
             children: Vec::new(),
-            matches: Vec::new()
+            matches: Vec::new(),
+            captures: Vec::new()
         }
     }
 }
@@ -58,7 +60,8 @@ impl<'a> CategoryBlock<'a> {
             name: &db_block.name,
             level,
             children: Vec::new(),
-            matches: Vec::new()
+            matches: Vec::new(),
+            captures: Vec::new()
         }
     }
 

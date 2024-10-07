@@ -98,6 +98,27 @@ impl ValueMatcher {
         ValueMatcher { components }
     }
 
+    pub fn generate(&self, captures: &HashMap<String, String>) -> String {
+        let mut out_string = "".to_string();
+
+        for component in self.components.as_slice() {
+            match component {
+                ValueComponent::Literal(literal) => {
+                    out_string.push_str(&format!("{} ", literal));
+                },
+                ValueComponent::Capture(capture) => {
+                    let capture_val = captures.get(capture);
+
+                    if let Some(val) = capture_val {
+                        out_string.push_str(&format!("{} ", val));
+                    }
+                }
+            }
+        }
+
+        out_string
+    }
+
     pub fn capture(&self, input: &str) -> Option<HashMap<String, String>> {
         let mut captures: HashMap<String, String> = HashMap::new();
 

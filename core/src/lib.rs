@@ -8,6 +8,7 @@ mod matching;
 pub use air::*;
 pub use db::AmbleDB;
 use db::DbBlockMatrix;
+use matching::expand_folds;
 pub use parsing::Parser;
 
 use anyhow::{anyhow, Context};
@@ -60,7 +61,10 @@ pub extern "C" fn write_category(category: *const TopLevelCategory) -> TopLevelC
     };
 
     let parser = Parser::new(&rust_category.content);
-    let blocks = parser.parse();
+    let mut folds = Vec::new();
+    let mut captures = Vec::new();
+
+    let blocks = expand_folds(&parser, &mut folds, &mut captures);
 
     let mut db = AmbleDB::new("amble.sqlite").expect("Could not create db");
 
@@ -69,7 +73,8 @@ pub extern "C" fn write_category(category: *const TopLevelCategory) -> TopLevelC
         name: &rust_category.name,
         children: blocks,
         level: 1,
-        matches: Vec::new()
+        matches: Vec::new(),
+        captures: Vec::new()
     };
 
     let last_id = db.write_top_level_category(&category)
@@ -88,6 +93,8 @@ pub extern "C" fn write_category(category: *const TopLevelCategory) -> TopLevelC
         .expect("Could not get category block");
 
     let out_string = render_to_org(Block::Category(category_block));
+
+    dbg!(&out_string);
 
     let out_cat = TopLevelCategory {
         id: cat_id,
