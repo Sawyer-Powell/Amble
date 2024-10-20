@@ -75,11 +75,10 @@ impl<'a> AmbleDB {
             .transaction()
             .context("Could not create a new transaction")?;
 
-        category
+        let last_id = category
             .write_to_db(&tx, None)
             .context("Should be able to write categroy to db")?;
 
-        let last_id = tx.last_insert_rowid();
         tx.commit().context("Could not commit transaction")?;
 
         Ok(last_id)

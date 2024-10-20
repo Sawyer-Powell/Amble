@@ -53,7 +53,7 @@ function amble_ffi.get_top_level_categories()
 	local categories = {}
 
 	for i = 0, tonumber(results.length) - 1 do
-		categories[i+1] = {
+		categories[i + 1] = {
 			id = tonumber(results.categories[i].id),
 			name = tostring(ffi.string(results.categories[i].name)),
 		}

@@ -4,3 +4,12 @@
 [submodule "nvim/third-party/plenary.nvim"]
 	path = nvim/third-party/plenary.nvim
 	url = https://github.com/nvim-lua/plenary.nvim
+[submodule "nvim/third-party/rose-pine"]
+	path = nvim/third-party/rose-pine
+	url = https://github.com/rose-pine/neovim
+[submodule "nvim/third-party/nvim-treesitter"]
+	path = nvim/third-party/nvim-treesitter
+	url = https://github.com/nvim-treesitter/nvim-treesitter
+[submodule "nvim/third-party/headlines.nvim"]
+	path = nvim/third-party/headlines.nvim
+	url = https://github.com/lukas-reineke/headlines.nvim

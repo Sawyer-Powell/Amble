@@ -1,9 +1,9 @@
 use std::ffi::{c_char, CStr, CString};
 mod air;
 mod db;
+mod matching;
 mod parsing;
 mod rendering;
-mod matching;
 
 pub use air::*;
 pub use db::AmbleDB;
@@ -21,6 +21,7 @@ pub struct TopLevelCategory {
     content: *const c_char,
 }
 
+#[derive(Debug)]
 pub struct RTopLevelCategory {
     id: i64,
     name: String,
@@ -69,20 +70,30 @@ pub extern "C" fn write_category(category: *const TopLevelCategory) -> TopLevelC
     let mut db = AmbleDB::new("amble.sqlite").expect("Could not create db");
 
     let category = CategoryBlock {
-        id: if rust_category.id > 0 { Some(rust_category.id) } else { None },
+        id: if rust_category.id > 0 {
+            Some(rust_category.id)
+        } else {
+            None
+        },
         name: &rust_category.name,
         children: blocks,
         level: 1,
         matches: Vec::new(),
-        captures: Vec::new()
+        captures: Vec::new(),
     };
 
-    let last_id = db.write_top_level_category(&category)
+    let last_id = db
+        .write_top_level_category(&category)
         .expect("Should be able to save category to database");
 
-    let cat_id = if rust_category.id > 0 { rust_category.id } else { last_id };
+    let cat_id = if rust_category.id > 0 {
+        rust_category.id
+    } else {
+        last_id
+    };
 
-    let matrix = DbBlockMatrix::new(&db.connection, cat_id).expect("Could not create db block matrix");
+    let matrix =
+        DbBlockMatrix::new(&db.connection, cat_id).expect("Could not create db block matrix");
 
     let flat_blocks = matrix
         .produce_flat_db_block_vec(&db.connection)
@@ -160,4 +171,32 @@ pub extern "C" fn get_category_content(id: i64) -> *mut c_char {
     let content = render_to_org(Block::Category(category_block));
 
     CString::new(content).unwrap().into_raw()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_write_category() {
+        let top_level_cat = TopLevelCategory {
+            id: -1,
+            name: CString::new("Category").unwrap().into_raw(),
+            content: CString::new(
+                r#"* TODO Need to talk to Sarah
+* FOLD
+** FROM
+*** "TODO" title
+** INTO
+*** title
+"#,
+            )
+            .unwrap()
+            .into_raw(),
+        };
+
+        let out_cat = write_category(&top_level_cat);
+
+        println!("{}", out_cat.to_rust().unwrap().content);
+    }
 }

@@ -1,7 +1,14 @@
 vim.o.runtimepath = vim.o.runtimepath .. ",./nvim/third-party/telescope.nvim"
 vim.o.runtimepath = vim.o.runtimepath .. ",./nvim/third-party/plenary.nvim"
+vim.o.runtimepath = vim.o.runtimepath .. ",./nvim/third-party/headlines.nvim"
+vim.o.runtimepath = vim.o.runtimepath .. ",./nvim/third-party/nvim-treesitter"
+vim.o.runtimepath = vim.o.runtimepath .. ",./nvim/third-party/rose-pine"
 vim.o.runtimepath = vim.o.runtimepath .. ",./"
 vim.g.mapleader = " "
+
+require('nvim-treesitter').setup()
+require('rose-pine').setup()
+vim.cmd("colorscheme rose-pine")
 
 vim.api.nvim_set_keymap('n', '<leader>q', ':q!<CR>', {})
 
@@ -16,3 +23,9 @@ vim.keymap.set('n', '<leader>fg', builtin.live_grep, { desc = 'Telescope live gr
 vim.keymap.set('n', '<leader>fb', builtin.buffers, { desc = 'Telescope buffers' })
 vim.keymap.set('n', '<leader>fh', builtin.help_tags, { desc = 'Telescope help tags' })
 vim.keymap.set('n', '<leader>af', require('telescope').extensions.amble.picker, { desc = 'Telescope help tags' })
+
+require('headlines').setup {
+	org = {
+	    fat_headlines = false
+	},
+}
